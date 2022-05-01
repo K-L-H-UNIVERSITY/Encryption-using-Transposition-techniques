@@ -1,1 +1,407 @@
+import re
+from django.shortcuts import render
+import math
 
+
+# Create your views here.
+
+from django.http import HttpResponse
+
+def index(request):
+    return HttpResponse("Hello this is it...")
+
+def encrypt(request):
+    key = "HACK"
+
+    def encryptMessage(msg):
+        cipher = ""
+
+        k_indx = 0
+
+        msg_len = float(len(msg))
+        msg_lst = list(msg)
+        key_lst = sorted(list(key))
+
+        col = len(key)
+
+        row = int(math.ceil(msg_len / col))
+
+
+        fill_null = int((row * col) - msg_len)
+        msg_lst.extend('_' * fill_null)
+
+
+        matrix = [msg_lst[i: i + col]
+                for i in range(0, len(msg_lst), col)]
+
+        for _ in range(col):
+            curr_idx = key.index(key_lst[k_indx])
+            cipher += ''.join([row[curr_idx]
+                            for row in matrix])
+            k_indx += 1
+
+        return cipher
+
+
+    # Decryption
+    def decryptMessage(cipher):
+        msg = ""
+
+        k_indx = 0
+
+        msg_indx = 0
+        msg_len = float(len(cipher))
+        msg_lst = list(cipher)
+
+        col = len(key)
+
+        row = int(math.ceil(msg_len / col))
+
+        key_lst = sorted(list(key))
+
+
+        dec_cipher = []
+        for _ in range(row):
+            dec_cipher += [[None] * col]
+
+
+        for _ in range(col):
+            curr_idx = key.index(key_lst[k_indx])
+
+            for j in range(row):
+                dec_cipher[j][curr_idx] = msg_lst[msg_indx]
+                msg_indx += 1
+            k_indx += 1
+
+        try:
+            msg = ''.join(sum(dec_cipher, []))
+        except TypeError:
+            raise TypeError("This program cannot",
+                            "handle repeating words.")
+
+        null_count = msg.count('_')
+
+        if null_count > 0:
+            return msg[: -null_count]
+
+        return msg
+
+
+    print(" Welcome to ENCRYPTION USING TRANSPORTATION TECHNIQUE")
+    msg = str(request.GET['m'])
+    cipher = encryptMessage(msg)
+
+    en_msg=format(cipher)
+
+    return render(request,'page.html',{'result_message':en_msg})    
+
+
+
+def decryptMessage(request):
+
+    key = "HACK"
+
+    def encryptMessage(msg):
+        cipher = ""
+
+        k_indx = 0
+
+        msg_len = float(len(msg))
+        msg_lst = list(msg)
+        key_lst = sorted(list(key))
+
+        col = len(key)
+
+        row = int(math.ceil(msg_len / col))
+
+
+        fill_null = int((row * col) - msg_len)
+        msg_lst.extend('_' * fill_null)
+
+
+        matrix = [msg_lst[i: i + col]
+                for i in range(0, len(msg_lst), col)]
+
+        for _ in range(col):
+            curr_idx = key.index(key_lst[k_indx])
+            cipher += ''.join([row[curr_idx]
+                            for row in matrix])
+            k_indx += 1
+
+        return cipher
+
+
+    # Decryption
+    def decryptMessage(cipher):
+        msg = ""
+
+        k_indx = 0
+
+        msg_indx = 0
+        msg_len = float(len(cipher))
+        msg_lst = list(cipher)
+
+        col = len(key)
+
+        row = int(math.ceil(msg_len / col))
+
+        key_lst = sorted(list(key))
+
+
+        dec_cipher = []
+        for _ in range(row):
+            dec_cipher += [[None] * col]
+
+
+        for _ in range(col):
+            curr_idx = key.index(key_lst[k_indx])
+
+            for j in range(row):
+                dec_cipher[j][curr_idx] = msg_lst[msg_indx]
+                msg_indx += 1
+            k_indx += 1
+
+        try:
+            msg = ''.join(sum(dec_cipher, []))
+        except TypeError:
+            raise TypeError("This program cannot",
+                            "handle repeating words.")
+
+        null_count = msg.count('_')
+
+        if null_count > 0:
+            return msg[: -null_count]
+
+        return msg
+
+
+    
+    msg = str(request.GET['d'])
+    cipher = decryptMessage(msg)
+
+    de_msg=format(cipher)
+
+    return render(request,'page.html',{'decryptedmessage':de_msg})    
+
+
+def encrypt1(request):
+    
+
+# Python3 program to illustrate
+# Rail Fence Cipher Encryption
+# and Decryption
+
+# function to encrypt a message
+    def encryptRailFence(text, key):
+        # create the matrix to cipher
+        # plain text key = rows ,
+        # length(text) = columns
+        # filling the rail matrix
+        # to distinguish filled
+        # spaces from blank ones
+        rail = [['\n' for i in range(len(text))]
+                for j in range(key)]
+
+        # to find the direction
+        dir_down = False
+        row, col = 0, 0
+
+        for i in range(len(text)):
+
+            # check the direction of flow
+            # reverse the direction if we've just
+            # filled the top or bottom rail
+            if (row == 0) or (row == key - 1):
+                dir_down = not dir_down
+
+            # fill the corresponding alphabet
+            rail[row][col] = text[i]
+            col += 1
+
+            # find the next row using
+            # direction flag
+            if dir_down:
+                row += 1
+            else:
+                row -= 1
+        # now we can construct the cipher
+        # using the rail matrix
+        result = []
+        for i in range(key):
+            for j in range(len(text)):
+                if rail[i][j] != '\n':
+                    result.append(rail[i][j])
+        return ("".join(result))
+
+
+    # This function receives cipher-text
+    # and key and returns the original
+    # text after decryption
+    def decryptRailFence(cipher, key):
+        # create the matrix to cipher
+        # plain text key = rows ,
+        # length(text) = columns
+        # filling the rail matrix to
+        # distinguish filled spaces
+        # from blank ones
+        rail = [['\n' for i in range(len(cipher))]
+                for j in range(key)]
+
+        # to find the direction
+        dir_down = None
+        row, col = 0, 0
+
+        # mark the places with '*'
+        for i in range(len(cipher)):
+            if row == 0:
+                dir_down = True
+            if row == key - 1:
+                dir_down = False
+
+            # place the marker
+            rail[row][col] = '*'
+            col += 1
+
+            # find the next row
+            # using direction flag
+            if dir_down:
+                row += 1
+            else:
+                row -= 1
+
+        # now we can construct the
+        # fill the rail matrix
+        index = 0
+        for i in range(key):
+            for j in range(len(cipher)):
+                if ((rail[i][j] == '*') and
+                        (index < len(cipher))):
+                    rail[i][j] = cipher[index]
+                    index += 1
+
+        # now read the matrix in
+        # zig-zag manner to construct
+        # the resultant text
+        result = []
+        row, col = 0, 0
+        for i in range(len(cipher)):
+
+            # check the direction of flow
+            if row == 0:
+                dir_down = True
+            if row == key - 1:
+                dir_down = False
+
+            # place the marker
+            if (rail[row][col] != '*'):
+                result.append(rail[row][col])
+                col += 1
+
+            # find the next row using
+            # direction flag
+            if dir_down:
+                row += 1
+            else:
+                row -= 1
+        return ("".join(result))
+
+
+    # Driver code
+    
+    x=3
+    
+    message = str(request.GET['m1'])
+    encrypted_message =encryptRailFence(message,x)
+    return render(request,'page1.html',{'result_message1':encrypted_message })
+
+
+
+    # message2 = str(request.GET['m2'])
+    # decrypted_message =decryptRailFence(message2,x)
+    # return render(request,'page1.html',{'decryptedmessage':decrypted_message })
+    
+
+        # msg = str(request.GET['m'])
+        # cipher = encryptMessage(msg)
+
+        # en_msg=format(cipher)
+
+        # return render(request,'page.html',{'result_message':en_msg})
+
+def decrypt(request):
+    def decryptRailFence(cipher, key):
+        # create the matrix to cipher
+        # plain text key = rows ,
+        # length(text) = columns
+        # filling the rail matrix to
+        # distinguish filled spaces
+        # from blank ones
+        rail = [['\n' for i in range(len(cipher))]
+                for j in range(key)]
+
+        # to find the direction
+        dir_down = None
+        row, col = 0, 0
+
+        # mark the places with '*'
+        for i in range(len(cipher)):
+            if row == 0:
+                dir_down = True
+            if row == key - 1:
+                dir_down = False
+
+            # place the marker
+            rail[row][col] = '*'
+            col += 1
+
+            # find the next row
+            # using direction flag
+            if dir_down:
+                row += 1
+            else:
+                row -= 1
+
+        # now we can construct the
+        # fill the rail matrix
+        index = 0
+        for i in range(key):
+            for j in range(len(cipher)):
+                if ((rail[i][j] == '*') and
+                        (index < len(cipher))):
+                    rail[i][j] = cipher[index]
+                    index += 1
+
+        # now read the matrix in
+        # zig-zag manner to construct
+        # the resultant text
+        result = []
+        row, col = 0, 0
+        for i in range(len(cipher)):
+
+            # check the direction of flow
+            if row == 0:
+                dir_down = True
+            if row == key - 1:
+                dir_down = False
+
+            # place the marker
+            if (rail[row][col] != '*'):
+                result.append(rail[row][col])
+                col += 1
+
+            # find the next row using
+            # direction flag
+            if dir_down:
+                row += 1
+            else:
+                row -= 1
+        return ("".join(result))
+
+    
+    x=3
+
+    message2 = str(request.GET['m2'])
+    decrypted_message =decryptRailFence(message2,x)
+    return render(request,'page1.html',{'decryptedmessage':decrypted_message })
+    
+   
